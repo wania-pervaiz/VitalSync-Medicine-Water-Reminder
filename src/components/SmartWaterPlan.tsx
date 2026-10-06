@@ -31,7 +31,7 @@ export function SmartWaterPlan({
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
-      api: 'http://localhost:3000/api/chat',
+      api: '/api/chat',
     }),
   });
 
