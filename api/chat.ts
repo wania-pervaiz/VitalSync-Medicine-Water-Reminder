@@ -4,10 +4,11 @@ import { createWaterPlan } from './tools/createWaterPlan.js';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+    res.status(405).send('Method Not Allowed');
+    return;
   }
 
- const { messages } = req.body;
+  const { messages } = req.body;
 
   const result = await streamText({
     model: google('gemini-3.5-flash-lite'),
@@ -22,6 +23,29 @@ export default async function handler(req: any, res: any) {
     },
   });
 
-  return result.toUIMessageStreamResponse();
+  const response = result.toUIMessageStreamResponse();
+
+  res.statusCode = 200;
+
+  res.setHeader(
+    'Content-Type',
+    response.headers.get('Content-Type') || 'text/plain',
+  );
+
+  if (response.body) {
+    const reader = response.body.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      res.write(Buffer.from(value));
+    }
+  }
+
+  res.end();
 }
 
