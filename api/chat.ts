@@ -1,6 +1,6 @@
 import { convertToModelMessages, streamText } from 'ai';
 import { google } from '@ai-sdk/google';
-import { createWaterPlan } from '../server/tools/createWaterPlan.js';
+import { createWaterPlan } from './tools/createWaterPlan';
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
