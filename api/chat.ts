@@ -1,29 +1,13 @@
-
 import { convertToModelMessages, streamText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { createWaterPlan } from './tools/createWaterPlan.js';
-import type { IncomingMessage } from 'node:http';
 
-export default async function handler(req: IncomingMessage) {
+export default async function handler(req: Request) {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
-  const body = await new Promise<string>((resolve, reject) => {
-    let data = '';
-
-    req.on('data', (chunk) => {
-      data += chunk;
-    });
-
-    req.on('end', () => {
-      resolve(data);
-    });
-
-    req.on('error', reject);
-  });
-
-  const { messages } = JSON.parse(body);
+  const { messages } = await req.json();
 
   const result = await streamText({
     model: google('gemini-3.5-flash-lite'),
